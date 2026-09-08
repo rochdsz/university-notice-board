@@ -1,0 +1,43 @@
+services:
+  notices-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: notices_api_container
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - notices-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: notices_postgres_db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - notices-network
+
+volumes:
+  postgres_data:
+
+networks:
+  notices-network:
+    driver: bridge
