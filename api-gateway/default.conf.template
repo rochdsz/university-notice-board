@@ -1,0 +1,25 @@
+server {
+    listen 80;
+    server_name localhost;
+
+    # Serve the Frontend UI
+    location / {
+        root /usr/share/nginx/html;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Route to Node.js Notices Service
+    location /api/notices {
+        proxy_pass http://${NOTICES_VM_IP}:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    # Route to Python Feedback Service
+    location /api/feedback {
+        proxy_pass http://${FEEDBACK_VM_IP}:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}

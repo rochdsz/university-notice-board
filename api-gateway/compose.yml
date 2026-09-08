@@ -1,0 +1,11 @@
+services:
+  api-gateway:
+    build:
+      context: .. # Build from root so it can access the /frontend folder
+      dockerfile: api-gateway/Dockerfile
+    container_name: api_gateway_container
+    ports:
+      - "80:80"
+    env_file:
+      - .env
+    restart: unless-stopped
